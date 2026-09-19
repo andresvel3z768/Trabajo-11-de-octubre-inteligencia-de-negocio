@@ -1,0 +1,38 @@
+services:
+  mysql:
+    image: mysql:8.4
+    container_name: etl-logistica-mysql
+    environment:
+      MYSQL_ROOT_PASSWORD: root_password
+      MYSQL_DATABASE: logistica
+      MYSQL_USER: etl_user
+      MYSQL_PASSWORD: etl_password
+    ports:
+      - "3306:3306"
+    volumes:
+      - ./bases_datos/mysql:/docker-entrypoint-initdb.d:ro
+      - mysql_data:/var/lib/mysql
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-uroot", "-proot_password"]
+      interval: 5s
+      timeout: 5s
+      retries: 20
+
+  mongodb:
+    image: mongo:8.0
+    container_name: etl-logistica-mongodb
+    ports:
+      - "27017:27017"
+    volumes:
+      - ./bases_datos/mongodb:/docker-entrypoint-initdb.d:ro
+      - mongo_data:/data/db
+    healthcheck:
+      test: ["CMD", "mongosh", "--quiet", "--eval", "db.runCommand({ ping: 1 }).ok"]
+      interval: 5s
+      timeout: 5s
+      retries: 20
+
+volumes:
+  mysql_data:
+  mongo_data:
+
