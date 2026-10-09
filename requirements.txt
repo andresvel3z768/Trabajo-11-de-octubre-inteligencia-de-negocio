@@ -1,8 +1,7 @@
-pandas==2.3.2
-SQLAlchemy==2.0.43
-PyMySQL==1.1.2
-pymongo==4.14.1
-python-dotenv==1.1.1
-jupyterlab==4.4.7
-pytest==8.4.2
-
+pandas
+SQLAlchemy
+PyMySQL
+pymongo
+python-dotenv
+jupyterlab
+pytest

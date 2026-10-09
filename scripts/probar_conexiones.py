@@ -8,19 +8,9 @@ from pymongo import MongoClient
 from sqlalchemy import text
 
 from src.config import MONGO_URI
-from src.extraccion import crear_motor_mysql
-
 
 def main():
-    try:
-        motor = crear_motor_mysql()
-        with motor.connect() as conexion:
-            conexion.execute(text("SELECT 1"))
-        motor.dispose()
-        print("MySQL: conexión correcta")
-    except Exception as error:
-        print(f"MySQL: error de conexión: {error}")
-
+    "conexion a las bases de datos de mongodb"
     try:
         cliente = MongoClient(MONGO_URI, serverSelectionTimeoutMS=5000)
         cliente.admin.command("ping")

@@ -1,61 +1,63 @@
 import logging
-from pathlib import Path
-
 import pandas as pd
 from pymongo import MongoClient
-from sqlalchemy import create_engine
 
-from src.config import CSV_DIR, MONGO_DATABASE, MONGO_URI, MYSQL_CONFIG
+
+from src.config import MONGO_DATABASE, MONGO_URI
 
 
 logger = logging.getLogger(__name__)
 
 
-def crear_motor_mysql():
-    """Crea la conexión reutilizable con MySQL."""
-    url = (
-        f"mysql+pymysql://{MYSQL_CONFIG['user']}:{MYSQL_CONFIG['password']}"
-        f"@{MYSQL_CONFIG['host']}:{MYSQL_CONFIG['port']}/{MYSQL_CONFIG['database']}"
-    )
-    return create_engine(url)
+class MongoDBExtractor:
+    def __init__(self, uri=MONGO_URI, database_name=MONGO_DATABASE):
+        self.uri = uri
+        self.database_name = database_name
+        self.client = None
+        self.db = None
 
+    def connect(self):
+        "Establece la conexión a la base de datos MongoDB."
+        try:
+            self.client = MongoClient(self.uri)
+            self.db = self.client[self.database_name]
+            #verficar la conexión
+            self.client.admin.command("ping")
+            logger.info("Conexión a MongoDB establecida correctamente.")
+        except Exception as e:
+            logger.error(f"Error al conectar a MongoDB: {e}")
+            raise
 
-def extraer_mysql() -> dict[str, pd.DataFrame]:
-    """Extrae las tablas relacionales necesarias para la ETL."""
-    logger.info("Iniciando extracción desde MySQL")
-    motor = crear_motor_mysql()
-    tablas = {}
-    for tabla in ["envios", "clientes", "vehiculos", "conductores"]:
-        tablas[tabla] = pd.read_sql(f"SELECT * FROM {tabla}", motor)
-        logger.info("Tabla %s: %s filas", tabla, len(tablas[tabla]))
-    motor.dispose()
-    return tablas
+    def extract_collection(self, collection_name) -> pd.DataFrame:
+        "Extrae los datos de una colección específica y los devuelve como un DataFrame de pandas."
+        if self.db is None:
+            raise Exception("No hay conexión a la base de datos. Llama a connect() primero.")
+        try:
+            collection = self.db[collection_name]
+            data = list(collection.find())
+            df = pd.DataFrame(data)
+            logger.info(f"Datos extraídos de la colección '{collection_name}' correctamente.")
+            return df
+        except Exception as e:
+            logger.error(f"Error al extraer datos de la colección '{collection_name}': {e}")
+            raise
 
+    def extract_all_collections(self) -> dict[str, pd.DataFrame]:
 
-def extraer_mongodb() -> pd.DataFrame:
-    """Extrae los eventos de trazabilidad almacenados en MongoDB."""
-    logger.info("Iniciando extracción desde MongoDB")
-    cliente = MongoClient(MONGO_URI, serverSelectionTimeoutMS=5000)
-    documentos = list(cliente[MONGO_DATABASE]["eventos"].find({}, {"_id": 0}))
-    cliente.close()
-    eventos = pd.DataFrame(documentos)
-    logger.info("MongoDB: %s eventos", len(eventos))
-    return eventos
+        if self.db is None:
+            self.connect()
+            
+        logger.info("Extrayendo datos de todas las colecciones de la base de datos.")
+        colecciones = [name for name in self.db.list_collection_names() if not name.startswith("system.")]
+        fuentes = {}
+        #recorrer todas las colecciones y extraer sus datos
+        for coleccion in colecciones:
+            fuentes[coleccion] = self.extract_collection(coleccion)
 
+        #cerrar la conexión después de la extracción
+        if self.client:
+            self.client.close()
+            logger.info("Conexión a MongoDB cerrada correctamente.")
 
-def extraer_csv(directorio: Path = CSV_DIR) -> dict[str, pd.DataFrame]:
-    """Lee las tres fuentes planas del caso."""
-    logger.info("Iniciando extracción de archivos CSV")
-    return {
-        "tarifas": pd.read_csv(directorio / "tarifas.csv"),
-        "metas": pd.read_csv(directorio / "metas_mensuales.csv"),
-        "satisfaccion": pd.read_csv(directorio / "satisfaccion_clientes.csv"),
-    }
-
-
-def extraer_todo() -> dict[str, pd.DataFrame]:
-    fuentes = extraer_mysql()
-    fuentes["eventos"] = extraer_mongodb()
-    fuentes.update(extraer_csv())
-    return fuentes
-
+        return fuentes
+    
