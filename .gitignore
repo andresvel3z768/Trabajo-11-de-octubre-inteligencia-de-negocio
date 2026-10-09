@@ -12,3 +12,8 @@ sqlite/*.db
 !datos/salida/.gitkeep
 !sqlite/.gitkeep
 
+
+# datasets grandes (no subir a GitHub)
+DATOS/*.csv
+DATOS/
+
