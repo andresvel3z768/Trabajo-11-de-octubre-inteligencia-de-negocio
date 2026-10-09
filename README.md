@@ -1,6 +1,6 @@
-# ETL de transporte y logística
+# ETL de alojamiento airbnb
 
-Proyecto maestro para enseñar una ETL completa con Python y pandas. Integra datos de MySQL, MongoDB y archivos CSV, corrige problemas de calidad, construye una sábana analítica y la carga en SQLite.
+Proyecto maestro para enseñar una ETL completa con Python y pandas. Integra datos de MongoDB, corrige problemas de calidad, construye una sábana analítica y la carga en SQLite.
 
 ## Requisitos
 
@@ -20,6 +20,7 @@ python scripts/generar_datos.py
 docker compose up -d
 python scripts/probar_conexiones.py
 python scripts/ejecutar_etl.py
+python lab 
 ```
 
 En Linux o macOS, active el entorno con `source .venv/bin/activate` y copie el archivo con `cp .env.example .env`.
