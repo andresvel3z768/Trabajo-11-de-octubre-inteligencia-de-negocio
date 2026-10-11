@@ -1,12 +1,13 @@
 from src.logger import obtener_logger
-
+import logging
 from src.calidad import crear_reporte_calidad
 from src.carga import cargar_resultados
 from src.config import LOG_DIR, OUTPUT_DIR
 from src.extraccion import extraer_todo
 from src.transformacion import construir_sabana
 
-logging = obtener_logger(__name__)
+
+logger = obtener_logger("Pipeline")
 
 def configurar_logging() -> None:
     LOG_DIR.mkdir(parents=True, exist_ok=True)

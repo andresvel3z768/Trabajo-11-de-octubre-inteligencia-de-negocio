@@ -1,5 +1,5 @@
 import logging
-from dateline import datetime
+from datetime import datetime
 from pathlib import Path
 from src.config import LOG_DIR
 
