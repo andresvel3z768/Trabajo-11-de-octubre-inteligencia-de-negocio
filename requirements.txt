@@ -6,3 +6,4 @@ python-dotenv
 jupyterlab
 pytest
 jupyter
+openpyxl
