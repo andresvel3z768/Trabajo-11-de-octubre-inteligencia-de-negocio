@@ -7,6 +7,10 @@ from dotenv import load_dotenv
 BASE_DIR = Path(__file__).resolve().parents[1]
 load_dotenv(BASE_DIR / ".env")
 
+LOG_DIR = BASE_DIR / "logs"
+SQLITE_PATH = BASE_DIR / os.getenv("SQLITE_PATH", "sqlite/airbnb_bogota.db")
+OUTPUT_DIR = BASE_DIR / "datos" / "salida"
+
 MYSQL_CONFIG = {
     "host": os.getenv("MYSQL_HOST", "localhost"),
     "port": int(os.getenv("MYSQL_PORT", "3306")),

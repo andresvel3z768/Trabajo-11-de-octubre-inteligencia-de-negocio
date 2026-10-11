@@ -16,7 +16,7 @@ Uso típico::
     reporte = Carga().ejecutar(tablas)
 """
 
-import logging
+from src.logger import obtener_logger
 import re
 import sqlite3
 from contextlib import closing
@@ -28,7 +28,7 @@ from openpyxl import load_workbook
 from src.config import OUTPUT_DIR, SQLITE_PATH
 
 
-logger = logging.getLogger(__name__)
+logger = obtener_logger("Carga")
 
 # Límite de filas por hoja de Excel (1.048.576) menos la fila de encabezado.
 MAX_FILAS_HOJA = 1_048_575
