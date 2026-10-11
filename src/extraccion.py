@@ -1,12 +1,10 @@
-import logging
 import pandas as pd
 from pymongo import MongoClient
-
-
 from src.config import MONGO_DATABASE, MONGO_URI
+from src.logger import obtener_logger
 
 
-logger = logging.getLogger(__name__)
+logger = obtener_logger("Extraccion")
 
 
 class MongoDBExtractor:
@@ -15,8 +13,10 @@ class MongoDBExtractor:
         self.database_name = database_name
         self.client = None
         self.db = None
+        self.logger = obtener_logger("Extraccion")
 
     def connect(self):
+        self.logger.info("Estableciendo conexión a MongoDB en %s ...", self.uri)
         "Establece la conexión a la base de datos MongoDB."
         try:
             self.client = MongoClient(self.uri)
@@ -31,6 +31,7 @@ class MongoDBExtractor:
     def extract_collection(self, collection_name) -> pd.DataFrame:
         "Extrae los datos de una colección específica y los devuelve como un DataFrame de pandas."
         if self.db is None:
+            self.logger.error("intento de extraccion sin conexion activa")
             raise Exception("No hay conexión a la base de datos. Llama a connect() primero.")
         try:
             collection = self.db[collection_name]

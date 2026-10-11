@@ -1,4 +1,4 @@
-import logging
+from src.logger import obtener_logger
 
 from src.calidad import crear_reporte_calidad
 from src.carga import cargar_resultados
@@ -6,6 +6,7 @@ from src.config import LOG_DIR, OUTPUT_DIR
 from src.extraccion import extraer_todo
 from src.transformacion import construir_sabana
 
+logging = obtener_logger(__name__)
 
 def configurar_logging() -> None:
     LOG_DIR.mkdir(parents=True, exist_ok=True)
@@ -22,7 +23,7 @@ def configurar_logging() -> None:
 
 def ejecutar_pipeline():
     configurar_logging()
-    logger = logging.getLogger(__name__)
+    logger = obtener_logger("Pipeline")
     logger.info("Inicio de la ETL")
     try:
         fuentes = extraer_todo()
