@@ -20,14 +20,14 @@ antes y después, y las advertencias encontradas.
 
 import ast
 import json
-import logging
+from src.logger import obtener_logger
 import re
 
 import numpy as np
 import pandas as pd
 
 
-logger = logging.getLogger(__name__)
+logger = obtener_logger("Transformacion")
 
 # Rangos de precio por noche en pesos colombianos (COP). Los límites se
 # eligieron a partir de la distribución observada en el EDA (mediana cercana a
